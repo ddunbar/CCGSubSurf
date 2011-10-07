@@ -8,26 +8,47 @@ endif
 CC := clang
 LD := clang
 
+# Default compile options
+ifndef CFLAGS
+CFLAGS := -arch x86_64
+endif
+ifndef OPTFLAGS
+OPTFLAGS := -O3 -fstrict-aliasing
+endif
+
 # Compiler
-ExtraFlags := -Wall -Wextra \
+ExtraFlags := \
+	-pedantic -Wall -Wextra \
 	-Wno-unused-parameter -Wno-missing-field-initializers
-CompileFlags := $(CFLAGS) $(OPTFLGS) $(ExtraFlags)
-LinkFlags := $(CompileFlags) \
+CommonFlags := $(CFLAGS) $(OPTFLAGS) $(ExtraFlags)
+CompileOnlyFlags := -std=c99
+CompileFlags := $(CompileOnlyFlags) $(CommonFlags)
+LinkFlags := $(CommonFlags)
+LinkFlags.glutTest := $(LinkFlags) \
 	-framework OpenGL -framework GLUT
+LinkFlags.perfTest := $(LinkFlags)
 
 # Source files
 
+Headers := $(wildcard $(SRCROOT)/*.h)
 Sources.Lib := CCGSubSurf.c
 Sources.Tests := $(Sources.Lib) QMesh.c
+
 Sources.glutTest := $(Sources.Tests) glutTest.c
 Objects.glutTest := $(Sources.glutTest:%.c=$(OBJROOT)/%.o)
 
-all: $(OBJROOT)/glutTest
+Sources.perfTest := $(Sources.Tests) perfTest.c
+Objects.perfTest := $(Sources.perfTest:%.c=$(OBJROOT)/%.o)
+
+all: $(OBJROOT)/glutTest $(OBJROOT)/perfTest
 
 $(OBJROOT)/glutTest: $(Objects.glutTest)
-	$(LD) -o $@ $(Objects.glutTest) $(LinkFlags)
+	$(LD) -o $@ $(Objects.glutTest) $(LinkFlags.glutTest)
 
-$(OBJROOT)/%.o: $(SRCROOT)/%.c $(OBJROOT)/.dir
+$(OBJROOT)/perfTest: $(Objects.perfTest)
+	$(LD) -o $@ $(Objects.perfTest) $(LinkFlags.perfTest)
+
+$(OBJROOT)/%.o: $(SRCROOT)/%.c $(Headers) Makefile $(OBJROOT)/.dir
 	$(CC) -c -o $@ $< $(CompileFlags)
 
 %/.dir:
