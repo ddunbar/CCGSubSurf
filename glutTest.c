@@ -186,6 +186,11 @@ void ccgSubSurf_draw(CCGSubSurf *ss, int drawVerts, int drawEdges, int drawInter
 #define eSS_DrawFaces			(1<<3)
 #define eSS_UseLighting			(1<<4)
 
+typedef enum {
+  kMutateKindOff = 0,
+  kMutateKindPerturb
+} MutationKind;
+
 static double checkTime(void) {
 	return (double) clock()/CLOCKS_PER_SEC;
 }
@@ -201,7 +206,8 @@ static QMesh *qmesh = NULL;
 static CCGSubSurf *ss = NULL;
 static int gGridSize = 9, gSubdivisionLevels = 2;
 static int gSubsurfDrawFlags = eSS_DrawVerts|eSS_DrawEdges|eSS_UseLighting; //eSS_DrawInteriorEdges
-static int gMutationStep = 0, gNumMutationSteps = 10, gMutate = 1;
+static int gMutationStep = 0, gNumMutationSteps = 10;
+static MutationKind gMutate = kMutateKindPerturb;
 static float gMutationVec[3], gMutationFactor = .05;
 static int gRotate = 1, gFullSync = 1, gShowStatistics = 0;
 static float gRotateTime = 0;
@@ -347,7 +353,10 @@ void draw(void) {
 void timer(int value) {
 	glutTimerFunc(1, timer, 0);
 
-	if (gMutate) {
+	switch (gMutate) {
+	case kMutateKindOff:
+		break;
+	case kMutateKindPerturb:
 		if (!gMutationVert || gMutationStep==0) {
 			gMutationStep = 0;
 			gMutationVert = &qmesh->verts[rand()%qmesh->numVerts];
@@ -369,6 +378,7 @@ void timer(int value) {
 			ccgSubSurf_syncVert(ss, (CCGVert*) gMutationVert, gMutationVert->co);
 			ccgSubSurf_processSync(ss);
 		}
+		break;
 	}
 }
 
@@ -378,10 +388,8 @@ void keypress(unsigned char key, int x, int y) {
 	}
 }
 
-void menu_setMutate(int value) {
-	if (value==0) {
-		gMutate = !gMutate;
-	}
+void menu_setMutateKind(int value) {
+	gMutate = (MutationKind) value;
 }
 
 void menu_setMutateRate(int rate) {
@@ -435,7 +443,11 @@ int main(int argc, char** argv) {
 	timer(0);
 
 	{
-		int mutate, mutateRate, mutateFactor, subLevels, gridSize, subSurfDisp;
+		int mutate, mutateKind, mutateRate, mutateFactor, subLevels, gridSize, subSurfDisp;
+
+		mutateKind = glutCreateMenu(menu_setMutateKind);
+		glutAddMenuEntry("Off", kMutateKindOff);
+		glutAddMenuEntry("Randomly Perturb", kMutateKindPerturb);
 
 		mutateRate = glutCreateMenu(menu_setMutateRate);
 		glutAddMenuEntry("1", 1);
@@ -452,8 +464,8 @@ int main(int argc, char** argv) {
 		glutAddMenuEntry("0.50", 50);
 		glutAddMenuEntry("1.00", 100);
 
-		mutate = glutCreateMenu(menu_setMutate);
-		glutAddMenuEntry("Toggle", 0);
+		mutate = glutCreateMenu(0);
+		glutAddSubMenu("Mutation Kind", mutateKind);
 		glutAddSubMenu("Set Rate", mutateRate);
 		glutAddSubMenu("Set Factor", mutateFactor);
 
