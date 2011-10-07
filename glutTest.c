@@ -189,7 +189,8 @@ void ccgSubSurf_draw(CCGSubSurf *ss, int drawVerts, int drawEdges,
 
 typedef enum {
   kMutateKindOff = 0,
-  kMutateKindPerturb
+  kMutateKindPerturb,
+  kMutateKindMonkeySaddleLift
 } MutationKind;
 
 static double checkTime(void) {
@@ -386,6 +387,15 @@ void timer(int value) {
       ccgSubSurf_processSync(ss);
     }
     break;
+  case kMutateKindMonkeySaddleLift: {
+    float mutate_percent = (float) (gMutationStep + 1) / gNumMutationSteps;
+    float lift_percent = 1 - fabs((2 * mutate_percent - 1));
+    float lift_height = gMutationFactor;
+    gMutationStep = (gMutationStep+1)%gNumMutationSteps;
+    qmesh_setToMonkeySaddleLift(qmesh, lift_percent, lift_height,
+                                ss, gFullSync);
+    break;
+  }
   }
 }
 
@@ -456,6 +466,7 @@ int main(int argc, char** argv) {
     mutateKind = glutCreateMenu(menu_setMutateKind);
     glutAddMenuEntry("Off", kMutateKindOff);
     glutAddMenuEntry("Randomly Perturb", kMutateKindPerturb);
+    glutAddMenuEntry("Monkey Saddle Lift", kMutateKindMonkeySaddleLift);
 
     mutateRate = glutCreateMenu(menu_setMutateRate);
     glutAddMenuEntry("1", 1);

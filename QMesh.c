@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "CCGSubSurf.h"
 #include "QMesh.h"
@@ -142,3 +143,48 @@ CCGSubSurf *qmesh_getCCGSubSurf(QMesh *qm, int levels) {
 
   return ss;
 }
+
+static float clamp(float value, float min, float max) {
+  if (value <= min)
+    return min;
+  if (value >= max)
+    return max;
+  return value;
+}
+void qmesh_setToMonkeySaddleLift(
+  QMesh *qm, float liftPercent, float liftHeight,
+  struct _CCGSubSurf *ss, int applyAsFullSync)
+{
+  int i;
+
+  if (!applyAsFullSync) {
+    ccgSubSurf_initPartialSync(ss);
+  }
+
+  for (i=0; i<qm->numVerts; i++) {
+    Vert *v = &qm->verts[i];
+    float x = v->co[0], y = v->co[1];
+    const float fastestTargetPercent = .2;
+    const float maxDistFromCenter = M_SQRT1_2;
+    float distFromCenterPercent = sqrt(v->co[0]*v->co[0] + v->co[1]*v->co[1]) /
+      maxDistFromCenter;
+    float liftTargetPercent =
+      fastestTargetPercent + (1.0-fastestTargetPercent) *
+      (1.0 - distFromCenterPercent);
+    float currentLiftPercent = clamp(liftPercent / liftTargetPercent, 0.0, 1.0);
+    float saddleHeight = (x * x * x - 3 * x * y * y) * liftHeight;
+    float height = saddleHeight * currentLiftPercent;
+
+    v->co[2] = height;
+    if (!applyAsFullSync) {
+      ccgSubSurf_syncVert(ss, v, v->co);
+    }
+  }
+
+  if (!applyAsFullSync) {
+    ccgSubSurf_processSync(ss);
+  } else {
+    qmesh_syncCCGSubSurf(qm, ss);
+  }
+}
+
