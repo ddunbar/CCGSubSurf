@@ -4,26 +4,44 @@
 #include <float.h>
 #include <time.h>
 
+#include "CCGSubSurf.h"
+
+// Simple platform autodetection.
+#if defined(__APPLE__)
+#define PLATFORM_MACOSX
+#elif defined(__linux__)
+#define PLATFORM_LINUX
+#elif defined(_WIN32)
+#define PLATFORM_WIN32
+#else
+#error "Unknown platform"
+#endif
+
+#ifdef PLATFORM_MACOSX
+
+#include <OpenGL/OpenGL.h>
+#include <GLUT/glut.h>
+
+#else
+
+#ifdef PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
 #define WIN32_STRICT
 #include <windows.h>
-
-#include "CCGSubSurf.h"
+#endif
 
 #include <GL/GL.h>
 #include <GL/GLU.h>
 #include <GLUT/glut.h>
 
-///
-
-int intMax(int a, int b) {
-	return (a<b)?b:a;
-}
+#endif
 
 ///
 
 #include "QMesh.h"
 
+int intMax(int a, int b) {
+	return (a<b)?b:a;
 }
 
 void ccgSubSurf_draw(CCGSubSurf *ss, int drawVerts, int drawEdges, int drawInteriorEdges, int drawFaces, int useLighting) {
