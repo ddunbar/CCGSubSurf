@@ -117,7 +117,7 @@ void qmesh_syncCCGSubSurf(QMesh *qm, CCGSubSurf *ss) {
 	for (i=0; i<qm->numQuads; i++) {
 		Quad *f = &qm->quads[i];
 
-		ccgSubSurf_syncFace(ss, f, 4, f->v);
+		ccgSubSurf_syncFace(ss, f, 4, (CCGVertHDL*) f->v);
 	}
 	ccgSubSurf_processSync(ss);
 }

@@ -101,7 +101,7 @@ static void _ehash_insert(EHash *eh, EHEntry *entry) {
 
 static void *_ehash_lookupWithPrev(EHash *eh, void *key, void ***prevp_r) {
 	int hash = EHASH_hash(eh, key);
-	void **prevp = &eh->buckets[hash];
+	EHEntry **prevp = &eh->buckets[hash];
 	EHEntry *entry;
 	
 	for (; (entry = *prevp); prevp = &entry->next) {
@@ -795,7 +795,7 @@ CCGError ccgSubSurf_syncVert(CCGSubSurf *ss, CCGVertHDL vHDL, void *vertData) {
 }
 
 CCGError ccgSubSurf_syncEdge(CCGSubSurf *ss, CCGEdgeHDL eHDL, CCGVertHDL e_vHDL0, CCGVertHDL e_vHDL1) {
-	void **prevp;
+	void **prevp = 0;
 	CCGEdge *e, *eNew;
 
 	if (ss->syncState==eSyncState_Partial) {
@@ -848,7 +848,7 @@ CCGError ccgSubSurf_syncEdge(CCGSubSurf *ss, CCGEdgeHDL eHDL, CCGVertHDL e_vHDL0
 }
 
 CCGError ccgSubSurf_syncFace(CCGSubSurf *ss, CCGFaceHDL fHDL, int numVerts, CCGVertHDL *vHDLs) {
-	void **prevp;
+	void **prevp = 0;
 	CCGFace *f, *fNew;
 	int j, k, topologyChanged = 0;
 
