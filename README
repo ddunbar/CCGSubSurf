@@ -1,0 +1,56 @@
+CCGSubSurf - Catmull-Clark Gridding Subdivision Surface Library
+===============================================================
+
+CCGSubSurf is a public domain library for working with Catmull-Clark subdivision
+surfaces. It is based on a novel algorithm for computing the subdivision surface
+that I have developed and refined over several years. Some details of the
+algorithm are available below and I hope to provide a detailed article at some
+point. For the time being the source is the definitive reference.
+
+Features
+--------
+
+ * Easy-to-use: The library has been designed to make integration into existing
+   3D modelling applications as simple as possible without sacrificing
+   functionality or performance.
+
+ * Incremental: CCGSubSurf uses an incremental algorithm to only recalculate the
+   portions of the subsurf that change in response to edits. For dense meshes
+   this gives a potentially unbounded improvement in interactivity.
+
+ * Lightweight: Efforts have been made to keep the memory footprint of the
+   subdivision data structures as small as possible. For high levels of
+   subdivision the memory use is close to minimal (although supporting
+   incremental recalculation does have a certain cost).
+
+ * Fast: Even disregarding the speed improvement from incremental calculation
+   the library is still very fast, especially at higher subdivision
+   levels. Although primarily intended for interactive (editing) applications,
+   it is fast enough to be a viable alternative for applications that merely
+   need to compute a subdivided surface.
+
+Missing Features
+----------------
+
+ * Creasing: There is currently no support for creasing. In my mind this is the
+   largest problem with the library as stands and I hope to correct it sometime
+   in the future.
+
+ * Interactivity Improvements: There is a bit of room for more improvements
+   targetted at interactive applications, for example providing hooks for
+   progress reporting or allowing the subdivision to be aborted and then
+   restarted (after mutating the mesh) in order to support zero-lag editing.
+   Adaptive: The library does not support adaptive subdivision. I believe that I
+   can integrate it efficiently into the algorithm but have not spent a
+   considerable amount of time or thought on the issue. At the moment it is on
+   the wishlist, but since I have qualms about adaptive subdivision in general
+   it is not near the top of the list.  Download
+
+Releases
+--------
+
+CCGSubSurf v0.01: An alpha release, just contains the source code and a glut
+demo as well as a compiled win32 version of the demo. After integration with
+Blender I made a few refinements to the API and added vertex normal calculation,
+but these changes have not been merged back yet. There is also no documentation
+in this release, although I hope the demo is fairly self-explanatory.
