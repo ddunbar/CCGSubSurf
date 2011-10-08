@@ -21,7 +21,7 @@ ExtraFlags := \
 	-pedantic -Wall -Wextra \
 	-Wno-unused-parameter -Wno-missing-field-initializers
 CommonFlags := $(CFLAGS) $(OPTFLAGS) $(ExtraFlags)
-CompileOnlyFlags := -std=c99
+CompileOnlyFlags := -std=c99 -I$(SRCROOT)/src
 CompileFlags := $(CompileOnlyFlags) $(CommonFlags)
 LinkFlags := $(CommonFlags)
 LinkFlags.glutTest := $(LinkFlags) \
@@ -48,7 +48,9 @@ $(OBJROOT)/glutTest: $(Objects.glutTest)
 $(OBJROOT)/perfTest: $(Objects.perfTest)
 	$(LD) -o $@ $(Objects.perfTest) $(LinkFlags.perfTest)
 
-$(OBJROOT)/%.o: $(SRCROOT)/%.c $(Headers) Makefile $(OBJROOT)/.dir
+$(OBJROOT)/%.o: $(SRCROOT)/tests/%.c $(Headers) Makefile $(OBJROOT)/.dir
+	$(CC) -c -o $@ $< $(CompileFlags)
+$(OBJROOT)/%.o: $(SRCROOT)/src/%.c $(Headers) Makefile $(OBJROOT)/.dir
 	$(CC) -c -o $@ $< $(CompileFlags)
 
 %/.dir:
