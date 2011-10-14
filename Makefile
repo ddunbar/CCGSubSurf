@@ -10,10 +10,7 @@ LD := clang
 
 # Default compile options
 ifndef CFLAGS
-CFLAGS := -arch x86_64
-endif
-ifndef OPTFLAGS
-OPTFLAGS := -O3 -fstrict-aliasing
+CFLAGS := -arch x86_64 -O3 -fstrict-aliasing
 endif
 
 # Compiler
@@ -41,6 +38,9 @@ Sources.perfTest := $(Sources.Tests) perfTest.c
 Objects.perfTest := $(Sources.perfTest:%.c=$(OBJROOT)/%.o)
 
 all: $(OBJROOT)/glutTest $(OBJROOT)/perfTest
+
+glutTest: $(OBJROOT)/glutTest
+perfTest: $(OBJROOT)/perfTest
 
 $(OBJROOT)/glutTest: $(Objects.glutTest)
 	$(LD) -o $@ $(Objects.glutTest) $(LinkFlags.glutTest)
